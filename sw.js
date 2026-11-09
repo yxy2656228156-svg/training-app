@@ -1,5 +1,5 @@
 /* 离线缓存：装到手机后断网也能用。改了 index.html 想强制更新，把 CACHE 版本号 +1 即可 */
-const CACHE = "trainapp-v2";
+const CACHE = "trainapp-v3";
 const ASSETS = [
   "./index.html",
   "./manifest.webmanifest",
