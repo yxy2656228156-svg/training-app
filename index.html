@@ -1,0 +1,1210 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#F6F1E9" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>训练记录</title>
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="./icon-192.png" />
+<style>
+:root{
+  --bg:#F6F1E9;
+  --glass:rgba(255,255,255,.66);
+  --glass-hi:rgba(255,255,255,.86);
+  --edge:rgba(255,255,255,.92);
+  --hair:rgba(120,96,72,.10);
+  --hair2:rgba(120,96,72,.14);
+  --ink:#2B2521;
+  --ink2:#7D7166;
+  --ink3:#A99C8E;
+  --acc:#E8703F;
+  --acc-soft:rgba(232,112,63,.12);
+  --acc-line:rgba(232,112,63,.35);
+  --ok:#3E9B72;
+  --ok-soft:rgba(62,155,114,.10);
+  --warn:#C98A2E;
+  --r:18px;
+  --sh:0 2px 8px rgba(90,70,50,.06), 0 10px 28px rgba(90,70,50,.07);
+  --sh-sm:0 1px 4px rgba(90,70,50,.06), 0 4px 14px rgba(90,70,50,.05);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overflow-x:hidden}
+body{
+  min-height:100vh;color:var(--ink);
+  font:15px/1.45 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+  background:
+    radial-gradient(560px 380px at 6% 2%, rgba(255,181,134,.42), transparent 62%),
+    radial-gradient(520px 420px at 98% 26%, rgba(255,212,186,.50), transparent 64%),
+    radial-gradient(560px 480px at 46% 102%, rgba(255,226,198,.55), transparent 62%),
+    var(--bg);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:contain;
+}
+#app{max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative}
+
+/* ---------- 顶栏 ---------- */
+header{
+  position:sticky;top:0;z-index:20;
+  padding:calc(12px + env(safe-area-inset-top)) 16px 10px;
+  background:rgba(255,253,249,.74);
+  -webkit-backdrop-filter:blur(20px) saturate(1.6);
+  backdrop-filter:blur(20px) saturate(1.6);
+  border-bottom:1px solid var(--hair);
+}
+.hrow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.h1{font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.h1 .dot{color:var(--acc)}
+.h2{font-size:12px;color:var(--ink2);margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:8px;font-size:11px;font-weight:700}
+.pill.acc{background:var(--acc-soft);color:var(--acc)}
+.pill.warn{background:rgba(201,138,46,.13);color:var(--warn)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.icon-btn{
+  width:38px;height:38px;flex:0 0 auto;border-radius:12px;display:grid;place-items:center;
+  border:1px solid var(--edge);background:var(--glass);color:var(--ink2);box-shadow:var(--sh-sm);
+}
+.icon-btn.on{color:var(--acc);background:var(--acc-soft);border-color:var(--acc-line)}
+.track{margin-top:11px;height:4px;border-radius:2px;background:rgba(120,96,72,.12);overflow:hidden}
+.track i{display:block;height:100%;border-radius:2px;background:linear-gradient(90deg,#F09060,var(--acc));transition:width .25s}
+
+/* ---------- 内容 ---------- */
+main{flex:1;padding:14px 12px 104px;animation:pageIn .18s ease-out}
+@keyframes pageIn{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+.card{
+  border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden;
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(16px) saturate(1.5);
+  backdrop-filter:blur(16px) saturate(1.5);
+  border:1px solid var(--edge);
+}
+.card-h{padding:14px 15px 11px;display:flex;gap:10px;align-items:flex-start}
+.idx{width:24px;height:24px;border-radius:9px;flex:0 0 auto;display:grid;place-items:center;font-size:11.5px;font-weight:800;color:var(--acc);background:var(--acc-soft)}
+.exwrap{min-width:0;flex:1}
+.ex-n{font-size:16.5px;font-weight:750;letter-spacing:-.01em;line-height:1.25}
+.ex-note{font-size:12px;color:var(--ink2);margin-top:4px}
+
+/* ---------- 组 ---------- */
+.set{padding:11px 13px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:9px;transition:background .2s}
+.set.done{background:linear-gradient(180deg,rgba(62,155,114,.07),rgba(62,155,114,.03))}
+.set-top{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink3)}
+.set-no{font-weight:700;color:var(--ink2)}
+.set-last{margin-left:auto;font-size:11px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.set-last.nil{opacity:.6}
+.set-row{display:flex;align-items:center;gap:8px}
+.badge{
+  flex:0 0 auto;width:54px;height:46px;border-radius:13px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  background:var(--acc-soft);color:var(--acc);
+}
+.badge b{font-size:11.5px;font-weight:800;letter-spacing:.02em;line-height:1.15}
+.badge i{font-style:normal;font-size:10px;font-weight:700;color:var(--ink2);line-height:1.15}
+.badge.plain{background:rgba(120,96,72,.08)}
+.stepper{
+  flex:1 1 auto;min-width:0;height:44px;border-radius:14px;display:flex;align-items:center;
+  background:var(--glass-hi);border:1px solid var(--hair2);transition:border-color .15s,box-shadow .15s;
+}
+.stepper:focus-within{border-color:var(--acc-line);box-shadow:0 0 0 3px rgba(232,112,63,.10)}
+.stepper button{width:38px;height:100%;border:0;background:transparent;color:var(--ink2);font-size:19px}
+.stepper button:active{color:var(--acc)}
+.stepper .val{
+  flex:1;min-width:0;width:0;text-align:center;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;
+  border:0;background:transparent;outline:none;color:var(--ink);padding:0;
+}
+.stepper .val::placeholder{color:#C9BDAE;font-weight:700}
+.stepper .unit{font-size:10.5px;color:var(--ink3);padding-right:9px;font-weight:600}
+.reps{
+  flex:0 0 auto;width:56px;height:44px;border-radius:14px;display:flex;align-items:baseline;justify-content:center;gap:2px;
+  background:var(--glass-hi);border:1px solid var(--hair2);padding:0 6px;
+}
+.reps input{width:0;flex:1;min-width:0;border:0;background:transparent;outline:none;text-align:right;font-size:16px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;padding:0}
+.reps span{font-size:10.5px;color:var(--ink3);font-weight:600}
+.check{
+  flex:0 0 auto;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  border:1.5px solid rgba(120,96,72,.20);background:var(--glass-hi);color:rgba(120,96,72,.40);
+  font-size:15px;font-weight:800;transition:all .18s;
+}
+.check:active{transform:scale(.94)}
+.check.on{background:var(--ok);border-color:var(--ok);color:#fff;box-shadow:0 4px 14px rgba(62,155,114,.32)}
+
+/* ---------- 按钮 ---------- */
+.cta{
+  width:100%;height:54px;border-radius:18px;border:0;display:grid;place-items:center;
+  background:linear-gradient(180deg,#F08356,var(--acc));color:#fff;font-size:15.5px;font-weight:800;
+  box-shadow:0 8px 22px rgba(232,112,63,.28);margin-top:4px;
+}
+.cta:active{transform:scale(.99)}
+.btn{
+  width:100%;height:48px;border-radius:14px;border:1px solid var(--hair2);background:var(--glass-hi);
+  color:var(--ink);font-size:14px;font-weight:700;margin-top:9px;
+}
+.btn.danger{color:#C0503A;border-color:rgba(192,80,58,.25);background:rgba(255,255,255,.6)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 12px}
+.chip{
+  padding:8px 14px;border-radius:11px;border:1px solid var(--edge);background:rgba(255,255,255,.7);
+  color:var(--ink2);font-size:13px;font-weight:600;
+}
+.chip.on{background:var(--acc-soft);border-color:var(--acc-line);color:var(--acc);font-weight:800}
+.hint{font-size:11.5px;color:var(--ink3);line-height:1.7;margin-top:9px}
+.sec{padding:14px 15px;border-radius:var(--r);background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh);margin-bottom:12px;
+  -webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5)}
+.sec h3{margin:0 0 10px;font-size:12px;color:var(--ink3);font-weight:800;letter-spacing:.06em}
+.rows-l{font-size:13px;color:var(--ink2);line-height:2}
+.rows-l b{color:var(--ink);font-weight:700}
+
+/* ---------- 计时 ---------- */
+.timer-page{padding-top:6px}
+.ring{position:relative;width:246px;height:246px;margin:0 auto}
+.ring svg{transform:rotate(-90deg);display:block}
+.ring .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.ring .num{font-size:52px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1}
+.ring .lbl{font-size:12px;color:var(--ink2);font-weight:600}
+.ring.finished .num{color:var(--ok)}
+.seg{margin:20px auto 0;display:flex;padding:4px;border-radius:14px;background:rgba(255,255,255,.75);border:1px solid var(--edge);box-shadow:var(--sh-sm);width:max-content}
+.seg div{width:96px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:13px;font-weight:800;color:var(--ink2);cursor:pointer}
+.seg div.on{background:#fff;color:var(--acc);box-shadow:0 2px 8px rgba(90,70,50,.10)}
+.timepick{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:22px}
+.tbox{
+  width:88px;height:62px;border-radius:16px;display:grid;place-items:center;
+  background:var(--glass-hi);border:1px solid var(--hair2);box-shadow:var(--sh-sm);
+}
+.tbox input{width:100%;height:100%;border:0;background:transparent;outline:none;text-align:center;font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--ink);padding:0}
+.tsep{font-size:24px;font-weight:800;color:var(--ink3)}
+.presets{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.presets span{padding:7px 14px;border-radius:11px;font-size:12.5px;font-weight:700;color:var(--ink2);background:rgba(255,255,255,.7);border:1px solid var(--edge)}
+.presets span.on{color:var(--acc);background:var(--acc-soft);border-color:var(--acc-line)}
+.tctl{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.cta.timerMain{width:246px;margin-top:0}
+.cta-row{display:flex;gap:10px}
+.btn.ghost{width:118px;margin-top:0;height:48px;background:rgba(255,255,255,.8)}
+.recent{width:100%;margin-top:26px}
+.recent .row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2);padding:9px 0;border-top:1px solid var(--hair)}
+.recent .row:first-child{border-top:0}
+
+/* ---------- 计划 ---------- */
+.wk{display:grid;grid-template-columns:58px 1fr;gap:8px;padding:8px 0;border-top:1px dashed var(--hair);font-size:12.5px}
+.wk:first-of-type{border-top:0}
+.wk .wl{color:var(--ink3);font-size:11.5px;padding-top:1px;font-weight:700}
+.wk .wv{color:var(--ink);line-height:1.65}
+.wk.dl .wl{color:var(--warn)}
+.mut{color:var(--ink3)}
+
+/* ---------- 历史 ---------- */
+.cyc{
+  display:flex;align-items:center;gap:10px;border-radius:var(--r);padding:15px;margin-bottom:10px;
+  background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh);
+  -webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);
+}
+.cyc:active{background:rgba(255,255,255,.85)}
+.cyc-t{font-size:16px;font-weight:800;color:var(--ink)}
+.cyc-s{font-size:11.5px;color:var(--ink3);margin-top:4px}
+.cyc-go{color:var(--ink3);font-size:20px;line-height:1}
+.hx{padding:11px 0;border-top:1px solid var(--hair)}
+.hx:first-of-type{border-top:0;padding-top:2px}
+.hx-t{font-size:13.5px;font-weight:800;margin-bottom:6px}
+.hx-r{display:grid;grid-template-columns:64px 1fr;gap:8px;font-size:11.5px;line-height:1.7;padding:1px 0}
+.hx-k{color:var(--ink3);font-weight:600}
+.hx-v{word-break:break-word;color:var(--ink)}
+
+/* ---------- 底栏 ---------- */
+nav{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:420px;z-index:30;
+  display:grid;grid-template-columns:repeat(5,1fr);
+  padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+  background:rgba(255,252,247,.74);
+  -webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);
+  border-top:1px solid var(--hair);
+}
+nav a{
+  text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 0;border-radius:12px;color:var(--ink3);font-size:10.5px;font-weight:700;
+}
+nav a.on{color:var(--acc);background:var(--acc-soft)}
+nav svg{width:21px;height:21px}
+
+/* ---------- 提示 ---------- */
+#toast{
+  position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%) translateY(-8px);
+  background:rgba(43,37,33,.92);color:#fff;font-size:13px;padding:10px 16px;border-radius:12px;z-index:60;
+  opacity:0;transition:.2s;pointer-events:none;white-space:nowrap;max-width:90vw;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:56px 24px;color:var(--ink3);font-size:13.5px;line-height:1.9}
+.empty b{display:block;font-size:15px;color:var(--ink2);margin-bottom:6px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="hdr"></header>
+  <main id="view"></main>
+  <nav id="nav"></nav>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   1. 计划数据：推 → 拉 → 蹲 → 休息
+   ========================================================= */
+const WEEKS = ["第一周", "第二周", "第三周", "第四周"];
+
+function uniSets(n, reps, extra) {
+  const sets = [];
+  for (let i = 0; i < n; i++) sets.push(Object.assign({ reps: reps }, extra || {}));
+  return [sets, sets, sets, sets];
+}
+function same4(sets) { return [sets, sets, sets, sets]; }
+
+const PLAN = [
+  {
+    id: "push", name: "推", sub: "胸 · 三角肌前束 · 三头",
+    items: [
+      {
+        id: "bp1", name: "杠铃卧推", note: "优先自由重量，动作规范",
+        weeks: [
+          [{ rpe: 6, reps: 12 }, { rpe: 8, reps: 10 }, { rpe: 8, reps: 8 }, { rpe: 8, reps: 8 }],
+          [{ rpe: 6, reps: 12 }, { rpe: 8, reps: 8 }, { rpe: 8, reps: 8 }, { rpe: 8, reps: 6 }],
+          [{ rpe: 6, reps: 10 }, { rpe: 8, reps: 8 }, { rpe: 8, reps: 6 }, { rpe: 10, reps: 0, fail: 1 }],
+          [{ rpe: 6, reps: 12 }, { rpe: 8, reps: 12 }, { rpe: 8, reps: 12 }, { rpe: 8, reps: 12 }]
+        ]
+      },
+      { id: "inc1", name: "哑铃上斜卧推", note: "可根据能力调整重量，最多两组力竭", weeks: uniSets(4, 12) },
+      { id: "dip1", name: "双杠臂屈伸（或退阶动作）", note: "退阶可撑凳子做", weeks: uniSets(4, 12) },
+      { id: "tri1", name: "仰卧臂屈伸", note: "感受三头收缩", weeks: uniSets(4, "12-15") },
+      { id: "front1", name: "前平举", note: "孤立刺激三角肌前束", weeks: uniSets(3, 12, { fail: 1 }) },
+      { id: "cardio1", name: "有氧", type: "cardio", note: "保持臀腿发力，而不是腰部发力，心率 130 左右", minutes: 30 }
+    ]
+  },
+  {
+    id: "pull", name: "拉", sub: "背 · 三角肌后束 · 二头",
+    items: [
+      {
+        id: "row1", name: "单手器械划船", note: "调整滑轮角度，侧重背阔肌",
+        weeks: [
+          [{ rpe: 8, reps: 12 }, { rpe: 8, reps: 10 }, { rpe: 8, reps: 10 }, { rpe: 10, reps: 10, pause: 5, reps2: 5 }],
+          [{ rpe: 8, reps: 12 }, { rpe: 8, reps: 10 }, { rpe: 10, reps: 10, pause: 5, reps2: 5 }, { rpe: 10, reps: 10, pause: 5, reps2: 5 }],
+          [{ rpe: 8, reps: 10 }, { rpe: 8, reps: 10 }, { rpe: 10, reps: 10, pause: 5, reps2: 5 }, { rpe: 10, reps: 10, pause: 5, reps2: 5 }],
+          [{ rpe: 8, reps: 12 }, { rpe: 8, reps: 12 }, { rpe: 8, reps: 10 }, { rpe: 8, reps: 10 }]
+        ]
+      },
+      { id: "pd1", name: "对握下拉", note: "需要上重量，感受背部收缩", weeks: uniSets(4, "8-12") },
+      {
+        id: "pd2", name: "单手钢线下拉", note: "孤立一侧背阔，注意下沉肩胛",
+        weeks: same4([{ rpe: 8, reps: 12 }, { rpe: 8, reps: 12 }, { rpe: 8, reps: 12 }, { rpe: 10, reps: 10 }])
+      },
+      { id: "pd3", name: "宽距反手高位下拉", note: "侧重中下斜方，后倾一定角度，注意肩胛骨活动度", weeks: uniSets(4, 12) },
+      { id: "bi1", name: "钢线弯举", note: "侧重二头训练", weeks: uniSets(4, 12) },
+      { id: "rear1", name: "蝴蝶机反向飞鸟", note: "侧重三角肌后束", weeks: uniSets(4, 12) }
+    ]
+  },
+  {
+    id: "squat", name: "蹲", sub: "臀 · 股四头肌",
+    items: [
+      { id: "legcurl1", name: "俯卧腿弯举", note: "侧重后侧链，保持平衡", weeks: uniSets(4, 12) },
+      { id: "sq1", name: "杠铃深蹲", note: "提升腿部整体力量", weeks: uniSets(4, 12) },
+      { id: "blg1", name: "保加利亚深蹲", note: "提升单腿力量", weeks: uniSets(4, 12) },
+      { id: "backext1", name: "山羊挺身", note: "强化竖脊肌与臀部", weeks: uniSets(3, 8) },
+      { id: "fly1", name: "哑铃飞鸟", note: "侧重胸中束，收尾充血", weeks: uniSets(4, 12) }
+    ]
+  },
+  {
+    id: "rest", name: "休息", sub: "主动恢复 · 看状态",
+    items: [
+      { id: "hang1", name: "悬垂举腿", note: "做到力竭为主，逐周增加次数", weeks: uniSets(4, 12, { fail: 1 }) },
+      { id: "cardio2", name: "有氧", type: "cardio", note: "快走或椭圆，心率 130 左右", minutes: 30 },
+      { id: "serr1", name: "绳索上推", note: "重点感受前锯肌发力", weeks: uniSets(4, "12-15") }
+    ]
+  }
+];
+
+const MOODS = [
+  { id: "good", name: "状态好", hide: [] },
+  { id: "mid", name: "一般", hide: ["serr1"] },
+  { id: "low", name: "状态差", hide: ["serr1", "hang1"] }
+];
+
+const ICONS = {
+  today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 9.5h7M8.5 12.5h7M8.5 15.5h4"/></svg>',
+  timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.4 1.6M9.5 3h5M12 3v2.5"/></svg>',
+  plan:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4" y="5.5" width="16" height="14" rx="3.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>',
+  hist:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 18V11M10 18V6M15 18v-5M20 18V9"/></svg>',
+  set:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4L18 18M18 6l-1.6 1.6M7.6 16.4L6 18"/></svg>'
+};
+
+/* =========================================================
+   2. 状态
+   ========================================================= */
+const KEY = "fitplan_v2";
+const OLD_KEY = "fitplan_v1";
+
+function defaultState() {
+  return { v: 2, cycle: 1, week: 1, dayId: "push", mood: "good", order: {}, logs: {}, restSec: 75, tmLog: [] };
+}
+
+let S = load();
+
+function load() {
+  try {
+    let raw = localStorage.getItem(KEY);
+    if (!raw) raw = localStorage.getItem(OLD_KEY);   // 迁移旧数据
+    if (!raw) return defaultState();
+    const o = JSON.parse(raw);
+    return Object.assign(defaultState(), o);
+  } catch (e) { return defaultState(); }
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+}
+
+function getDay(id) { return PLAN.find(function (d) { return d.id === id; }) || PLAN[0]; }
+function curDay() { return getDay(S.dayId); }
+
+function orderedItems(day) {
+  const all = day.items.map(function (i) { return i.id; });
+  const cur = S.order[day.id];
+  if (!cur || !cur.length) return day.items.slice();
+  const seen = [];
+  cur.forEach(function (id) { if (all.indexOf(id) >= 0) seen.push(id); });
+  all.forEach(function (id) { if (seen.indexOf(id) < 0) seen.push(id); });
+  return seen.map(function (id) { return day.items.find(function (i) { return i.id === id; }); });
+}
+function visibleItems(day) {
+  const items = orderedItems(day);
+  if (day.id !== "rest") return items;
+  const m = MOODS.find(function (x) { return x.id === S.mood; }) || MOODS[0];
+  return items.filter(function (i) { return m.hide.indexOf(i.id) < 0; });
+}
+
+function logKey(cycle, week, dayId, itemId, i) {
+  return "c" + cycle + "w" + week + "d" + dayId + "i" + itemId + "s" + i;
+}
+function getLogAt(cycle, week, dayId, itemId, i) {
+  return S.logs[logKey(cycle, week, dayId, itemId, i)] || null;
+}
+function getLog(week, dayId, itemId, i) {
+  return getLogAt(S.cycle, week, dayId, itemId, i);
+}
+
+/* “上次”参考：① 同循环上一周 ② 上循环同周次 ③ 最近一次 */
+const KEY_RE = /^c(\d+)w(\d+)d([a-z0-9]+)i([a-z0-9_]+)s(\d+)$/;
+
+function lastAnywhere(dayId, itemId, i) {
+  let best = null;
+  const keys = Object.keys(S.logs);
+  for (let n = 0; n < keys.length; n++) {
+    const m = KEY_RE.exec(keys[n]);
+    if (!m) continue;
+    if (m[3] !== dayId || m[4] !== itemId || Number(m[5]) !== i) continue;
+    const v = S.logs[keys[n]];
+    if (!v || v.w === "" || v.w === null || v.w === undefined) continue;
+    if (!best || (v.at || 0) > (best.at || 0)) {
+      best = { w: v.w, r: v.r, at: v.at || 0, cycle: Number(m[1]), week: Number(m[2]) };
+    }
+  }
+  return best;
+}
+
+function prevRef(dayId, itemId, i) {
+  if (S.week > 1) {
+    const l = getLog(S.week - 1, dayId, itemId, i);
+    if (l && l.w !== "" && l.w !== undefined && l.w !== null) return { label: "上周", w: l.w };
+  }
+  if (S.cycle > 1) {
+    const l = getLogAt(S.cycle - 1, S.week, dayId, itemId, i);
+    if (l && l.w !== "" && l.w !== undefined && l.w !== null) return { label: "上循环", w: l.w };
+  }
+  const any = lastAnywhere(dayId, itemId, i);
+  if (any) return { label: "最近", w: any.w };
+  return null;
+}
+
+/* =========================================================
+   3. 工具
+   ========================================================= */
+const $ = function (s) { return document.querySelector(s); };
+const view = document.getElementById("view");
+const hdr = document.getElementById("hdr");
+const navEl = document.getElementById("nav");
+
+function esc(s) {
+  return String(s === null || s === undefined ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function repsLabel(p) {
+  if (p.fail && !p.reps) return "力竭";
+  if (p.pause) return p.reps + "+" + p.reps2;
+  return p.reps || "";
+}
+function targetText(p) {
+  if (!p) return "";
+  let t = "";
+  if (p.rpe) t += "RPE" + p.rpe;
+  if (p.reps) t += (t ? " " : "") + "×" + p.reps;
+  else if (p.fail) t += " 力竭";
+  if (p.pause) t += " +" + p.pause + "s+" + p.reps2;
+  return t;
+}
+function fmt(sec) {
+  sec = Math.max(0, Math.round(sec));
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+}
+function fmtDate(t) {
+  if (!t) return "";
+  const d = new Date(t);
+  return (d.getMonth() + 1) + "/" + d.getDate();
+}
+function toast(msg) {
+  let el = document.getElementById("toast");
+  if (!el) { el = document.createElement("div"); el.id = "toast"; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.add("on");
+  clearTimeout(el._t);
+  el._t = setTimeout(function () { el.classList.remove("on"); }, 1600);
+}
+
+/* =========================================================
+   4. 计时器引擎
+   ========================================================= */
+const TM_KEY = "fitplan_timer_v1";
+const TM = {
+  mode: "countdown",     // countdown | stopwatch
+  dur: 75,               // 倒计时目标秒
+  left: 75,              // 剩余秒
+  elapsed: 0,            // 秒表秒
+  running: false,
+  endAt: 0,
+  baseElapsed: 0,
+  startAt: 0,
+  finished: false
+};
+let tmTick = null;
+
+function tmSave() {
+  try {
+    localStorage.setItem(TM_KEY, JSON.stringify({
+      mode: TM.mode, dur: TM.dur, left: TM.left, elapsed: TM.elapsed,
+      running: TM.running, endAt: TM.endAt, baseElapsed: TM.baseElapsed,
+      startAt: TM.startAt, finished: TM.finished
+    }));
+  } catch (e) {}
+}
+function tmLoad() {
+  try {
+    const raw = localStorage.getItem(TM_KEY);
+    if (!raw) return;
+    const o = JSON.parse(raw);
+    Object.assign(TM, o);
+    if (TM.running) {
+      const now = Date.now();
+      if (TM.mode === "countdown") {
+        TM.left = Math.max(0, (TM.endAt - now) / 1000);
+        if (TM.left <= 0) { TM.running = false; TM.finished = true; }
+      } else {
+        TM.elapsed = TM.baseElapsed + (now - TM.startAt) / 1000;
+      }
+    }
+  } catch (e) {}
+}
+
+function tmRemain() {
+  if (TM.mode === "countdown") {
+    if (!TM.running) return TM.left;
+    return Math.max(0, (TM.endAt - Date.now()) / 1000);
+  }
+  if (!TM.running) return TM.elapsed;
+  return TM.baseElapsed + (Date.now() - TM.startAt) / 1000;
+}
+
+function tmStart() {
+  if (TM.mode === "countdown") {
+    TM.finished = false;
+    if (TM.left <= 0) TM.left = TM.dur;
+    TM.endAt = Date.now() + TM.left * 1000;
+  } else {
+    TM.baseElapsed = TM.elapsed;
+    TM.startAt = Date.now();
+  }
+  TM.running = true;
+  tmSave();
+  beepCtx();
+  tmLoop();
+  render();
+}
+
+function tmPause() {
+  if (!TM.running) return;
+  if (TM.mode === "countdown") TM.left = Math.max(0, (TM.endAt - Date.now()) / 1000);
+  else TM.elapsed = TM.baseElapsed + (Date.now() - TM.startAt) / 1000;
+  TM.running = false;
+  tmSave();
+  render();
+}
+
+function tmReset() {
+  TM.running = false; TM.finished = false;
+  if (TM.mode === "countdown") TM.left = TM.dur;
+  else TM.elapsed = 0;
+  tmSave();
+  render();
+}
+
+function tmFinish() {
+  TM.running = false;
+  TM.finished = true;
+  if (TM.mode === "countdown") TM.left = 0;
+  pushTmLog();
+  beep();
+  tmSave();
+  render();
+}
+
+function pushTmLog() {
+  const sec = TM.mode === "countdown" ? TM.dur : Math.round(TM.elapsed);
+  if (!sec) return;
+  S.tmLog = S.tmLog || [];
+  S.tmLog.unshift({ mode: TM.mode, sec: sec, at: Date.now() });
+  S.tmLog = S.tmLog.slice(0, 6);
+  save();
+}
+
+function tmLoop() {
+  if (tmTick) clearInterval(tmTick);
+  tmTick = setInterval(function () {
+    if (!TM.running) return;
+    if (TM.mode === "countdown" && Date.now() >= TM.endAt) { tmFinish(); return; }
+    renderTimerPage(true);
+  }, 200);
+}
+
+let audioCtx = null;
+function beepCtx() {
+  try {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  } catch (e) {}
+}
+function beep() {
+  try {
+    const ac = audioCtx || (window.AudioContext ? new window.AudioContext() : null);
+    if (ac) {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "sine"; o.frequency.value = 880;
+      o.connect(g); g.connect(ac.destination);
+      const t = ac.currentTime;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.2, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+      o.start(t); o.stop(t + 0.5);
+      setTimeout(function () { try { o.frequency.value = 1320; } catch (e) {} }, 260);
+    }
+  } catch (e) {}
+  if (navigator.vibrate) { try { navigator.vibrate([120, 60, 120]); } catch (e) {} }
+}
+
+/* =========================================================
+   5. 渲染：外壳
+   ========================================================= */
+let tab = "today";
+let editOrder = false;
+
+const TABS = [
+  ["today", "今日", ICONS.today],
+  ["timer", "计时", ICONS.timer],
+  ["plan", "计划", ICONS.plan],
+  ["hist", "历史", ICONS.hist],
+  ["set", "设置", ICONS.set]
+];
+
+function renderNav() {
+  navEl.innerHTML = TABS.map(function (t) {
+    return '<a href="#' + t[0] + '" data-tab="' + t[0] + '" class="' + (tab === t[0] ? "on" : "") + '">' +
+      t[2] + "<span>" + t[1] + "</span></a>";
+  }).join("");
+}
+
+function renderHeader() {
+  let h = "";
+  if (tab === "today") {
+    const day = curDay();
+    const items = visibleItems(day);
+    const tot = totalSets(items, S.week);
+    const dn = doneCount(items, S.week);
+    h = '<div class="hrow"><div>' +
+      '<div class="h1">第 ' + S.week + " 周 <span class=\"dot\">·</span> " + esc(day.name) + "日</div>" +
+      '<div class="h2">' + esc(day.sub) +
+      (S.week === 4 ? ' <span class="pill warn">减载周</span>' : ' <span class="pill acc">第' + S.cycle + "循环</span>") +
+      ' <span class="pill ok">已完成 ' + dn + "/" + tot + "</span></div></div>" +
+      '<button class="icon-btn' + (editOrder ? " on" : "") + '" data-act="order">' +
+      '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M4 12h16M4 17h7"/></svg>' +
+      "</button></div>" +
+      '<div class="track"><i style="width:' + (tot ? Math.round(dn / tot * 100) : 0) + '%"></i></div>';
+  } else if (tab === "timer") {
+    h = '<div class="hrow"><div><div class="h1">计时</div>' +
+      '<div class="h2">自由设定 · 记录你的休息节奏</div></div></div>';
+  } else if (tab === "plan") {
+    h = '<div class="hrow"><div><div class="h1">训练计划</div>' +
+      '<div class="h2">四周一个大循环 · 第四周减载</div></div></div>';
+  } else if (tab === "hist") {
+    if (histCycle === null) {
+      h = '<div class="hrow"><div><div class="h1">历史记录</div>' +
+        '<div class="h2">按大循环归档 · 点进去看细节</div></div></div>';
+    } else {
+      h = '<div class="hrow"><div><div class="h1">第 ' + histCycle + ' 循环</div>' +
+        '<div class="h2">推 / 拉 / 蹲 / 休息 的实际重量</div></div>' +
+        '<button class="chip" data-act="hback" style="margin:0">返回</button></div>';
+    }
+  } else {
+    h = '<div class="hrow"><div><div class="h1">设置</div>' +
+      '<div class="h2">进度 · 备份 · 安装</div></div></div>';
+  }
+  hdr.innerHTML = h;
+}
+
+function render() {
+  renderHeader();
+  renderNav();
+  if (tab === "today") renderToday();
+  else if (tab === "timer") renderTimerPage();
+  else if (tab === "plan") renderPlan();
+  else if (tab === "hist") renderHist();
+  else renderSet();
+}
+
+/* =========================================================
+   6. 渲染：今日
+   ========================================================= */
+function totalSets(items, week) {
+  let n = 0;
+  items.forEach(function (it) {
+    if (it.type === "cardio") { n += 1; return; }
+    n += (it.weeks[week - 1] || it.weeks[0]).length;
+  });
+  return n;
+}
+function doneCount(items, week) {
+  let n = 0;
+  items.forEach(function (it) {
+    if (it.type === "cardio") { if (getLog(week, S.dayId, it.id, 0)) n += 1; return; }
+    const ps = it.weeks[week - 1] || it.weeks[0];
+    for (let i = 0; i < ps.length; i++) {
+      const l = getLog(week, S.dayId, it.id, i);
+      if (l && l.done) n += 1;
+    }
+  });
+  return n;
+}
+
+function setRowHtml(day, it, i, p) {
+  const key = logKey(S.cycle, S.week, day.id, it.id, i);
+  const l = S.logs[key] || null;
+  const prev = prevRef(day.id, it.id, i);
+  const wv = l && l.w !== "" && l.w !== undefined ? l.w : (prev ? prev.w : "");
+  const rv = l && l.r !== "" && l.r !== undefined ? l.r : (typeof p.reps === "number" ? p.reps : "");
+  const done = !!(l && l.done);
+  const badge = p.rpe
+    ? '<b>RPE' + p.rpe + "</b><i>" + esc(repsLabel(p)) + " 次</i>"
+    : "<b>" + esc(repsLabel(p)) + " 次</b>";
+  const lastTxt = prev ? prev.label + " " + prev.w + "kg" : "无记录";
+  return '<div class="set' + (done ? " done" : "") + '" data-key="' + key + '">' +
+    '<div class="set-top"><span class="set-no">第 ' + (i + 1) + " 组</span>" +
+    '<span class="set-last' + (prev ? "" : " nil") + '">' + esc(lastTxt) + "</span></div>" +
+    '<div class="set-row">' +
+    '<div class="badge' + (p.rpe ? "" : " plain") + '">' + badge + "</div>" +
+    '<div class="stepper"><button data-act="wdown">−</button>' +
+    '<input class="val w-in" inputmode="decimal" value="' + esc(wv) + '" placeholder="—">' +
+    '<span class="unit">kg</span><button data-act="wup">+</button></div>' +
+    '<div class="reps"><input class="r-in" inputmode="numeric" value="' + esc(rv) + '"><span>次</span></div>' +
+    '<button class="check' + (done ? " on" : "") + '" data-act="done">✓</button>' +
+    "</div></div>";
+}
+
+function renderToday() {
+  const day = curDay();
+  const items = visibleItems(day);
+  let html = "";
+  if (day.id === "rest") {
+    html += '<div class="chips">';
+    MOODS.forEach(function (m) {
+      html += '<button class="chip ' + (S.mood === m.id ? "on" : "") + '" data-act="mood" data-mood="' + m.id + '">' + m.name + "</button>";
+    });
+    html += "</div>";
+  }
+  if (!items.length) html += '<div class="empty"><b>今天没有安排</b>好好休息</div>';
+
+  items.forEach(function (it, ix) {
+    if (it.type === "cardio") {
+      const key = logKey(S.cycle, S.week, day.id, it.id, 0);
+      const l = S.logs[key] || null;
+      const done = !!(l && l.done);
+      html += '<section class="card"><div class="card-h">' +
+        '<div class="idx">' + (ix + 1) + "</div>" +
+        '<div class="exwrap"><div class="ex-n">' + esc(it.name) + "</div>" +
+        '<div class="ex-note">' + esc(it.note) + "</div></div>" +
+        (editOrder ? moveBtns(ix, items.length) : "") + "</div>" +
+        '<div class="set' + (done ? " done" : "") + '" data-key="' + key + '">' +
+        '<div class="set-top"><span class="set-no">全程</span><span class="set-last">有氧</span></div>' +
+        '<div class="set-row"><div class="badge plain"><b>' + it.minutes + " 分</b></div>" +
+        '<div style="flex:1"></div>' +
+        '<button class="check' + (done ? " on" : "") + '" data-act="done">✓</button></div></div></section>';
+      return;
+    }
+    const ps = it.weeks[S.week - 1] || it.weeks[0];
+    let rows = "";
+    ps.forEach(function (p, i) { rows += setRowHtml(day, it, i, p); });
+    html += '<section class="card"><div class="card-h">' +
+      '<div class="idx">' + (ix + 1) + "</div>" +
+      '<div class="exwrap"><div class="ex-n">' + esc(it.name) + "</div>" +
+      '<div class="ex-note">' + esc(it.note) + "</div></div>" +
+      (editOrder ? moveBtns(ix, items.length) : "") + "</div>" + rows + "</section>";
+  });
+
+  html += '<button class="cta" data-act="nextday">完成今日 · 进入下一天</button>';
+  view.innerHTML = html;
+}
+
+function moveBtns(ix, n) {
+  return '<div style="display:flex;gap:6px">' +
+    '<button class="icon-btn" style="width:32px;height:32px;border-radius:10px" data-act="up" data-ix="' + ix + '"' + (ix === 0 ? " disabled" : "") + ">↑</button>" +
+    '<button class="icon-btn" style="width:32px;height:32px;border-radius:10px" data-act="down" data-ix="' + ix + '"' + (ix === n - 1 ? " disabled" : "") + ">↓</button></div>";
+}
+
+/* =========================================================
+   7. 渲染：计时页
+   ========================================================= */
+function renderTimerPage(silent) {
+  const remain = tmRemain();
+  const isCd = TM.mode === "countdown";
+  const total = isCd ? Math.max(TM.dur, 1) : 60;
+  const prog = isCd ? Math.min(1, Math.max(0, remain / total)) : ((remain % 60) / 60);
+  const C = 2 * Math.PI * 108;
+  const cls = "ring" + (TM.finished && !TM.running ? " finished" : "");
+  const ringColor = (TM.running || TM.finished) ? "#E8703F" : "rgba(232,112,63,.30)";
+
+  let html = '<div class="timer-page"><div class="' + cls + '">' +
+    '<svg width="246" height="246" viewBox="0 0 246 246">' +
+    '<circle cx="123" cy="123" r="108" fill="none" stroke="rgba(120,96,72,.10)" stroke-width="10"/>' +
+    '<circle cx="123" cy="123" r="108" fill="none" stroke="" + ringColor + "" stroke-width="10" stroke-linecap="round" ' +
+    'stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - prog)).toFixed(1) + '"/>' +
+    "</svg>" +
+    '<div class="inner"><div class="num" id="tmNum">' + fmt(remain) + "</div>" +
+    '<div class="lbl">' + (isCd ? (TM.finished ? "休息结束" : "组间休息") : "秒表") + "</div></div></div>";
+
+  html += '<div class="seg"><div class="' + (isCd ? "on" : "") + '" data-act="mode" data-mode="countdown">倒计时</div>' +
+    '<div class="' + (isCd ? "" : "on") + '" data-act="mode" data-mode="stopwatch">秒表</div></div>';
+
+  if (isCd && !TM.running) {
+    const mm = Math.floor(TM.dur / 60), ss = TM.dur % 60;
+    html += '<div class="timepick">' +
+      '<div class="tbox"><input class="t-min" inputmode="numeric" value="' + (mm < 10 ? "0" + mm : mm) + '"></div>' +
+      '<div class="tsep">:</div>' +
+      '<div class="tbox"><input class="t-sec" inputmode="numeric" value="' + (ss < 10 ? "0" + ss : ss) + '"></div></div>' +
+      '<div class="presets">' + [60, 75, 90, 120].map(function (v) {
+        return '<span class="' + (TM.dur === v ? "on" : "") + '" data-act="preset" data-sec="' + v + '">' + v + "</span>";
+      }).join("") + "</div>";
+  }
+
+  html += '<div class="tctl">';
+  html += '<button class="cta timerMain" data-act="' + (TM.running ? "pause" : "start") + '">' +
+    (TM.running ? "暂停" : (TM.finished ? "再来一组" : "开始")) + "</button>";
+  html += '<div class="cta-row">' +
+    '<button class="btn ghost" data-act="reset">重置</button>' +
+    (isCd ? '<button class="btn ghost" data-act="add15">+15s</button>' : "") +
+    "</div></div>";
+
+  const logs = (S.tmLog || []).slice(0, 4);
+  if (logs.length) {
+    html += '<div class="recent">';
+    logs.forEach(function (r) {
+      const d = new Date(r.at);
+      html += '<div class="row"><span>' + (d.getMonth() + 1) + "月" + d.getDate() + "日 " +
+        (d.getHours() < 10 ? "0" : "") + d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes() +
+        "</span><span>" + fmt(r.sec) + (r.mode === "stopwatch" ? " · 秒表" : "") + "</span></div>";
+    });
+    html += "</div>";
+  }
+  html += "</div>";
+
+  if (silent) {
+    const num = document.getElementById("tmNum");
+    if (num) num.textContent = fmt(remain);
+    const ring = document.querySelector(".ring");
+    if (ring) {
+      const c = ring.querySelector("circle:last-of-type");
+      if (c) c.setAttribute("stroke-dashoffset", (C * (1 - prog)).toFixed(1));
+    }
+    return;
+  }
+  view.innerHTML = html;
+}
+
+/* =========================================================
+   8. 渲染：计划
+   ========================================================= */
+function renderPlan() {
+  let html = '<div class="chips">';
+  PLAN.forEach(function (d) {
+    html += '<button class="chip ' + (d.id === S.dayId ? "on" : "") + '" data-act="pday" data-day="' + d.id + '">' + d.name + "</button>";
+  });
+  html += "</div>";
+
+  const day = curDay();
+  html += '<div class="sec"><h3>' + esc(day.name) + "日 · " + esc(day.sub) + "</h3>";
+  orderedItems(day).forEach(function (it, ix) {
+    if (it.type === "cardio") {
+      html += '<div class="wk"><div class="wl">全周期</div><div class="wv">' +
+        "<b>" + (ix + 1) + ". " + esc(it.name) + "</b> " + it.minutes + " 分钟<br>" +
+        '<span class="mut" style="font-size:11.5px">' + esc(it.note) + "</span></div></div>";
+      return;
+    }
+    const prog = JSON.stringify(it.weeks[0]) !== JSON.stringify(it.weeks[1]);
+    let inner = "<b>" + (ix + 1) + ". " + esc(it.name) + "</b>" +
+      '<br><span class="mut" style="font-size:11.5px">' + esc(it.note) + "</span>";
+    if (!prog) {
+      const sets = it.weeks[0];
+      const same = sets.every(function (s) { return JSON.stringify(s) === JSON.stringify(sets[0]); });
+      const label = same ? sets.length + " 组 · " + targetText(sets[0])
+        : sets.length + " 组 · " + sets.map(targetText).join(" · ");
+      inner = "<b>" + (ix + 1) + ". " + esc(it.name) + "</b> " + esc(label) +
+        '<br><span class="mut" style="font-size:11.5px">' + esc(it.note) + "</span>";
+    } else {
+      it.weeks.forEach(function (w, wi) {
+        const txt = w.map(function (s) { return targetText(s); }).join(" · ");
+        inner += '<div style="margin-top:5px;font-size:12px;color:' + (wi === 3 ? "var(--warn)" : "var(--ink)") + '">' +
+          (wi === 3 ? "第四周（减载）" : WEEKS[wi]) + "：" + esc(txt) + "</div>";
+      });
+    }
+    html += '<div class="wk' + (prog ? "" : "") + '"><div class="wl">' + (prog ? "四周渐进" : "全周期") + '</div><div class="wv">' + inner + "</div></div>";
+  });
+  html += "</div>";
+  view.innerHTML = html;
+}
+
+/* =========================================================
+   9. 渲染：历史（大循环 → 训练日 → 动作）
+   ========================================================= */
+let histCycle = null;
+let histDay = "push";
+
+function cycleSummary() {
+  const map = {};
+  Object.keys(S.logs).forEach(function (k) {
+    const m = KEY_RE.exec(k);
+    if (!m) return;
+    const v = S.logs[k];
+    if (!v) return;
+    const c = Number(m[1]);
+    if (!map[c]) map[c] = { n: c, sets: 0, weeks: {}, first: 0, last: 0 };
+    const o = map[c];
+    if (v.done || v.w) o.sets += 1;
+    o.weeks[Number(m[2])] = 1;
+    const at = v.at || 0;
+    if (at) { if (!o.first || at < o.first) o.first = at; if (at > o.last) o.last = at; }
+  });
+  return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) { return b.n - a.n; });
+}
+
+function renderHist() {
+  const list = cycleSummary();
+  if (!list.length) {
+    view.innerHTML = '<div class="empty"><b>还没有记录</b>去「今日」练一次，这里就会出现数据</div>';
+    return;
+  }
+  if (histCycle !== null && !list.some(function (c) { return c.n === histCycle; })) histCycle = null;
+  if (histCycle === null) {
+    let html = '<div class="hint" style="margin:0 0 12px">一个大循环一个「文件夹」，点进去看里面推 / 拉 / 蹲 每天的实际重量。</div>';
+    list.forEach(function (c) {
+      const weeks = Object.keys(c.weeks).length;
+      html += '<div class="cyc" data-act="ocycle" data-cycle="' + c.n + '">' +
+        '<div style="flex:1;min-width:0"><div class="cyc-t">第 ' + c.n + " 循环</div>" +
+        '<div class="cyc-s">' + weeks + " 周 · " + c.sets + " 组记录 · " +
+        (c.first ? fmtDate(c.first) + " – " + fmtDate(c.last) : "—") + "</div></div>" +
+        '<div class="cyc-go">›</div></div>';
+    });
+    view.innerHTML = html;
+    return;
+  }
+  renderCycleDetail(histCycle);
+}
+
+function renderCycleDetail(n) {
+  let html = '<div class="chips">';
+  PLAN.forEach(function (d) {
+    html += '<button class="chip ' + (histDay === d.id ? "on" : "") + '" data-act="hday" data-day="' + d.id + '">' + d.name + "日</button>";
+  });
+  html += "</div>";
+
+  const day = getDay(histDay);
+  let total = 0;
+  html += '<div class="sec"><h3>' + esc(day.name) + "日 · " + esc(day.sub) + "</h3>";
+
+  day.items.forEach(function (it) {
+    if (it.type === "cardio") {
+      let has = false;
+      for (let w = 1; w <= 4; w++) if (getLogAt(n, w, day.id, it.id, 0)) has = true;
+      html += '<div class="hx"><div class="hx-t">' + esc(it.name) + "</div>" +
+        '<div class="hx-r"><div class="hx-k">全周期</div><div class="hx-v">' +
+        (has ? "已完成 " + it.minutes + " 分钟" : '<span class="mut">未记录</span>') + "</div></div></div>";
+      return;
+    }
+    let any = false;
+    for (let w = 1; w <= 4 && !any; w++) {
+      const ps = it.weeks[w - 1] || it.weeks[0];
+      for (let i = 0; i < ps.length; i++) {
+        const l = getLogAt(n, w, day.id, it.id, i);
+        if (l && (l.w || l.r || l.done)) { any = true; break; }
+      }
+    }
+    html += '<div class="hx"><div class="hx-t">' + esc(it.name) + "</div>";
+    if (!any) {
+      html += '<div class="hx-r"><div class="hx-k">全周期</div><div class="hx-v mut">本循环未记录</div></div></div>';
+      return;
+    }
+    for (let w = 1; w <= 4; w++) {
+      const ps = it.weeks[w - 1] || it.weeks[0];
+      const cells = [];
+      for (let i = 0; i < ps.length; i++) {
+        const l = getLogAt(n, w, day.id, it.id, i);
+        if (l && (l.w || l.r)) {
+          cells.push(l.w ? l.w + "×" + (l.r || "-") : "-×" + l.r);
+          total += 1;
+        }
+      }
+      html += '<div class="hx-r"><div class="hx-k">' + WEEKS[w - 1] + "</div>" +
+        '<div class="hx-v">' + (cells.length ? esc(cells.join(" · ")) : '<span class="mut">未记录</span>') + "</div></div>";
+    }
+    html += "</div>";
+  });
+  html += '<div class="hint">' + esc(day.name) + "日共 " + total + " 条记录（重量×次数）</div></div>";
+  view.innerHTML = html;
+}
+
+/* =========================================================
+   10. 渲染：设置
+   ========================================================= */
+function renderSet() {
+  let html = "";
+  html += '<div class="sec"><h3>当前进度</h3>' +
+    '<div class="rows-l">大循环 <b>第 ' + S.cycle + "</b> 循环　周次 <b>" + WEEKS[S.week - 1] +
+    "</b>　训练日 <b>" + esc(curDay().name) + "</b></div>" +
+    '<div class="chips" style="margin:12px 0 0">';
+  WEEKS.forEach(function (w, i) {
+    html += '<button class="chip ' + (S.week === i + 1 ? "on" : "") + '" data-act="week" data-week="' + (i + 1) + '">' + w + "</button>";
+  });
+  html += "</div><div class=\"chips\">";
+  PLAN.forEach(function (d) {
+    html += '<button class="chip ' + (S.dayId === d.id ? "on" : "") + '" data-act="day" data-day="' + d.id + '">' + d.name + "</button>";
+  });
+  html += "</div><div class=\"chips\" style=\"margin-bottom:0\">" +
+    '<button class="chip" data-act="cyc-" >循环 −1</button>' +
+    '<button class="chip" data-act="cyc+">循环 +1</button></div></div>';
+
+  html += '<div class="sec"><h3>组间休息</h3><div class="chips" style="margin-bottom:0">' +
+    [60, 75, 90, 120].map(function (sec) {
+      return '<button class="chip ' + (S.restSec === sec ? "on" : "") + '" data-act="rest" data-sec="' + sec + '">' + sec + " 秒</button>";
+    }).join("") + '</div><div class="hint">计时页「开始」时使用这个时长，也可以在那页临时改。</div></div>';
+
+  html += '<div class="sec"><h3>数据备份</h3>' +
+    '<button class="btn" data-act="export">导出 JSON</button>' +
+    '<button class="btn" data-act="import">从 JSON 导入</button>' +
+    '<input type="file" id="fileIn" accept=".json,application/json" style="display:none">' +
+    '<div class="hint">记录只存在这台手机里，清缓存会丢，建议每周导出一次。<br>当前 ' + Object.keys(S.logs).length + " 条记录</div></div>";
+
+  html += '<div class="sec"><h3>安装到手机</h3>' +
+    '<div class="rows-l">1. Chrome 打开本页<br>2. 菜单「安装应用 / 添加到主屏幕」<br>3. 之后断网也能用</div>' +
+    '<button class="btn" data-act="install">立即安装</button></div>';
+
+  html += '<div class="sec"><h3>危险操作</h3>' +
+    '<button class="btn danger" data-act="reset">清空全部记录</button></div>';
+
+  view.innerHTML = html;
+}
+
+/* =========================================================
+   11. 交互
+   ========================================================= */
+function writeLog(key, patch) {
+  const cur = S.logs[key] || {};
+  S.logs[key] = Object.assign(cur, patch, { at: Date.now() });
+  const v = S.logs[key];
+  if ((v.w === "" || v.w === undefined) && (v.r === "" || v.r === undefined) && !v.done) delete S.logs[key];
+  save();
+}
+
+document.addEventListener("click", function (e) {
+  const navBtn = e.target.closest("nav a");
+  if (navBtn) {
+    e.preventDefault();
+    tab = navBtn.dataset.tab;
+    location.hash = tab;
+    window.scrollTo(0, 0);
+    render();
+    return;
+  }
+
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  const act = el.dataset.act;
+  const setEl = el.closest(".set");
+
+  switch (act) {
+    case "order": editOrder = !editOrder; render(); return;
+    case "wdown": case "wup": {
+      const input = setEl.querySelector(".w-in");
+      const step = act === "wup" ? 2.5 : -2.5;
+      const v = parseFloat(input.value) || 0;
+      const nv = Math.max(0, Math.round((v + step) * 100) / 100);
+      input.value = nv || "";
+      writeLog(setEl.dataset.key, { w: nv });
+      return;
+    }
+    case "done": {
+      const key = setEl.dataset.key;
+      const l = S.logs[key] || {};
+      const on = !l.done;
+      if (on) {
+        const w = setEl.querySelector(".w-in"), r = setEl.querySelector(".r-in");
+        writeLog(key, { w: w ? (parseFloat(w.value) || "") : "", r: r ? r.value : "", done: true });
+      } else {
+        writeLog(key, { done: false });
+      }
+      setEl.classList.toggle("done", on);
+      el.classList.toggle("on", on);
+      renderHeader();
+      return;
+    }
+    case "up": case "down": {
+      const ix = Number(el.dataset.ix);
+      const to = act === "up" ? ix - 1 : ix + 1;
+      const day = curDay();
+      const ids = visibleItems(day).map(function (i) { return i.id; });
+      if (to < 0 || to >= ids.length) return;
+      const t = ids[ix]; ids[ix] = ids[to]; ids[to] = t;
+      S.order[day.id] = ids; save(); render(); return;
+    }
+    case "mood": S.mood = el.dataset.mood; save(); render(); return;
+    case "nextday": {
+      const i = PLAN.findIndex(function (d) { return d.id === S.dayId; });
+      let ni = i + 1, nw = S.week, nc = S.cycle;
+      if (ni >= PLAN.length) {
+        ni = 0; nw += 1;
+        if (nw > 4) { nw = 1; nc += 1; }
+      }
+      S.dayId = PLAN[ni].id; S.week = nw; S.cycle = nc;
+      save(); editOrder = false; render(); window.scrollTo(0, 0);
+      toast("进入 " + WEEKS[S.week - 1] + " · " + PLAN[ni].name + "日");
+      return;
+    }
+    /* ---- 计时页 ---- */
+    case "mode":
+      if (TM.running) { toast("先暂停再切换模式"); return; }
+      TM.mode = el.dataset.mode;
+      if (TM.mode === "countdown") TM.left = TM.dur;
+      else TM.elapsed = 0;
+      TM.finished = false;
+      tmSave(); render(); return;
+    case "preset":
+      TM.dur = Number(el.dataset.sec); TM.left = TM.dur; TM.finished = false;
+      tmSave(); render(); return;
+    case "start": tmStart(); return;
+    case "pause": tmPause(); return;
+    case "reset": tmReset(); return;
+    case "add15":
+      if (TM.mode !== "countdown") return;
+      if (TM.running) TM.endAt += 15000; else { TM.left = Math.min(3600, TM.left + 15); TM.dur = Math.max(TM.dur, TM.left); }
+      tmSave(); render(); return;
+    /* ---- 计划 / 历史 / 设置 ---- */
+    case "pday": S.dayId = el.dataset.day; save(); render(); return;
+    case "hback": histCycle = null; render(); return;
+    case "ocycle": histCycle = Number(el.dataset.cycle); histDay = S.dayId; render(); window.scrollTo(0, 0); return;
+    case "hday": histDay = el.dataset.day; render(); return;
+    case "week": S.week = Number(el.dataset.week); save(); render(); return;
+    case "day": S.dayId = el.dataset.day; save(); render(); return;
+    case "rest": S.restSec = Number(el.dataset.sec); TM.dur = S.restSec; TM.left = S.restSec; tmSave(); save(); render(); return;
+    case "cyc-": S.cycle = Math.max(1, S.cycle - 1); save(); render(); return;
+    case "cyc+": S.cycle += 1; save(); render(); return;
+    case "export": {
+      const blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      const d = new Date();
+      a.href = URL.createObjectURL(blob);
+      a.download = "训练记录-" + d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2) + ".json";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 3000);
+      toast("已导出");
+      return;
+    }
+    case "import": document.getElementById("fileIn").click(); return;
+    case "install":
+      if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(function () { deferredPrompt = null; }); }
+      else toast("在 Chrome 菜单中选择「安装应用」");
+      return;
+    case "reset":
+      if (confirm("清空全部训练记录？不可恢复，建议先导出。")) { S.logs = {}; S.tmLog = []; save(); toast("已清空"); render(); }
+      return;
+  }
+});
+
+document.addEventListener("input", function (e) {
+  const el = e.target;
+  if (el.classList.contains("t-min") || el.classList.contains("t-sec")) {
+    const mm = Math.min(99, Math.max(0, parseInt(document.querySelector(".t-min").value, 10) || 0));
+    const ss = Math.min(59, Math.max(0, parseInt(document.querySelector(".t-sec").value, 10) || 0));
+    TM.dur = Math.max(1, mm * 60 + ss);
+    TM.left = TM.dur; TM.finished = false;
+    tmSave();
+    return;
+  }
+  if (!el.classList.contains("w-in") && !el.classList.contains("r-in")) return;
+  const setEl = el.closest(".set");
+  if (!setEl) return;
+  const patch = {};
+  if (el.classList.contains("w-in")) patch.w = el.value;
+  if (el.classList.contains("r-in")) patch.r = el.value;
+  writeLog(setEl.dataset.key, patch);
+});
+
+document.addEventListener("change", function (e) {
+  const el = e.target;
+  if (el.id === "fileIn" && el.files && el.files[0]) {
+    const fr = new FileReader();
+    fr.onload = function () {
+      try {
+        const o = JSON.parse(fr.result);
+        if (!o || typeof o !== "object" || !o.logs) throw new Error("bad");
+        S = Object.assign(defaultState(), o);
+        save(); render(); toast("导入成功");
+      } catch (err) { toast("导入失败：文件格式不对"); }
+      el.value = "";
+    };
+    fr.readAsText(el.files[0]);
+  }
+});
+
+/* =========================================================
+   12. PWA / 启动
+   ========================================================= */
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); deferredPrompt = e; });
+
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  });
+}
+
+tmLoad();
+const initTab = (location.hash || "").replace("#", "");
+tab = TABS.some(function (t) { return t[0] === initTab; }) ? initTab : "today";
+if (TM.running) tmLoop();
+render();
+</script>
+</body>
+</html>
